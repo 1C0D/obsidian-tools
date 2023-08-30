@@ -1,0 +1,4 @@
+[submodule "obsidian-show-hidden-files"]
+	path = obsidian-show-hidden-files
+	url = ../obsidian-show-hidden-files.git
+	branch = main

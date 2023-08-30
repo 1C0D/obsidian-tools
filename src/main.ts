@@ -120,8 +120,6 @@ export default class Tools extends Plugin {
 	) {
 		const fileExists = await fs.pathExists(destinationPath);
 		if (fileExists) { // file already exists
-			console.log("ici")
-
 			if (!this.applyAll) new ConfirmModal(this.app, this, (result) => {
 				if (result === 1) {
 					this.confirm(fileName, selectedPath, normalizedFullPath, destinationPath, 1)
@@ -135,7 +133,6 @@ export default class Tools extends Plugin {
 						this.MoveItem(this.files.pop() as TFile, selectedPath)
 					}
 				} else {
-					console.log("result", result)
 					return
 				}
 			}).open()
