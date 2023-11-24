@@ -1,10 +1,10 @@
 {
-	"id": "tools",
-	"name": "Tools",
+	"id": "obsidian-my-tools",
+	"name": "My tools",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "little tools workshop.",
+	"description": "tools",
 	"author": "1C0D",
-	"authorUrl": "https://obsidian.md",
+	"authorUrl": "https://github.com/1C0D/obsidian-tools",
 	"isDesktopOnly": false
 }
