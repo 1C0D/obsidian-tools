@@ -1,14 +1,10 @@
-// move to vault increment ?
-
-import * as fs from "fs-extra";
-import * as path from "path";
+// TODO: move to vault increment ? add notice end operations
 import {
 	Plugin,
 	TFile,
 	TFolder,
 } from "obsidian";
 import { MultiFilesMenus, SingleFileMenus } from "./move out from vault/move-out-menus";
-import { picker } from "./utils";
 import { moveToVault } from "./move to vault/move-to-vault";
 
 // interface ToolsSettings {}
