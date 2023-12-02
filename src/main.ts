@@ -1,4 +1,4 @@
-// TODO: move to vault increment ? add notice end operations
+// TODO: move to vault increment ? add notice end operations. move attached deps links
 import {
 	Plugin,
 	TFile,

@@ -1,3 +1,5 @@
+// attached when copying directory?
+
 import { Notice, TFile, TFolder, normalizePath } from "obsidian";
 import { OutFromVaultConfirmModal } from "./out-of-vault-confirm_modal";
 import * as fs from "fs-extra";
@@ -14,42 +16,57 @@ declare global {
 }
 
 export async function openFileExplorer(
-	files: TFile | TFile[] | TFolder | TFolder[],
+	files: (TFile | TFolder)[],
 	job: string,
 	move?: boolean
 ) {
 	const msg =
 		job === "move"
-			? "Move out from Vault: select directory"
-			: "Copy out from Vault: select directory";
+			? "Move out of Vault: select directory"
+			: "Copy out of Vault: select directory";
 	const selectedPath = await picker(msg, ["openDirectory"]) as string;
 	if (!selectedPath) return;
 	let runModal: boolean = false;
-	if (Array.isArray(files)) {
-		for (const file of files) {
-			runModal = await doesFileExists(file, selectedPath);
-			if (runModal) break
-		}
-	} else {
-		runModal = await doesFileExists(files, selectedPath);
+	let attached: TFile[] = []
+	for (const file of files) {
+		const resoledLinks = hasResolvedLinks(file)
+		if (resoledLinks?.length) { attached = [...new Set([...attached, ...resoledLinks])] }
+		runModal = await fileAlreadyInDest(file, selectedPath);
+		if (runModal) break
 	}
-	if (runModal) {
-		new OutFromVaultConfirmModal(this.app, this, (result) => {
+
+	if (runModal || attached.length) {
+		new OutFromVaultConfirmModal(this.app, runModal, attached, async (result) => {
 			console.debug("result", result);
-			if (result === 0) {
+			if (!result) {
 				console.debug("closed");
 				return;
 			}
 			handler(result, files, selectedPath, move);
+			await openDirectoryInFileManager(selectedPath)
 		}).open();
 	} else {
 		if (move) await withoutModal(files, selectedPath, true);
 		else await withoutModal(files, selectedPath);
+		await openDirectoryInFileManager(selectedPath)
 	}
-	await openDirectoryInFileManager(selectedPath)
 }
 
-async function doesFileExists(
+function hasResolvedLinks(file: TFile | TFolder): TFile[] | undefined {
+	if (file instanceof TFolder) return
+	const LinkFiles = []
+	const metadataCache = this.app.metadataCache.getCache(file?.path as string)
+	const fileLinks = metadataCache?.links
+	if (!fileLinks) return []
+	for (const fileLink of fileLinks) {
+		const link = fileLink.link
+		const linkFile = this.app.metadataCache.getFirstLinkpathDest(link, "/")
+		if (linkFile) LinkFiles.push(linkFile)
+	}
+	return LinkFiles
+}
+
+async function fileAlreadyInDest(
 	file: TFile | TFolder,
 	selectedPath: string
 ): Promise<boolean> {
@@ -65,7 +82,7 @@ async function doesFileExists(
 }
 
 async function withoutModal(
-	files: TFile | TFile[] | TFolder | TFolder[],
+	files: (TFile | TFolder)[],
 	selectedPath: string,
 	move?: boolean
 ) {
@@ -93,17 +110,14 @@ async function simpleCopy(
 }
 
 function handler(
-	result: number,
-	files: TFile | TFile[] | TFolder | TFolder[],
+	result: { pastOption: number, attached: TFile[] },
+	files: (TFile | TFolder)[],
 	selectedPath: string,
 	move?: boolean
 ) {
-	if (Array.isArray(files)) {
-		for (const file of files)
-			moveItem(file as TFile | TFolder, selectedPath, result, move);
-	} else {
-		moveItem(files as TFile | TFolder, selectedPath, result, move);
-	}
+	if (result.attached?.length) { files = [...new Set([...files, ...result.attached])]; }
+	for (const file of files)
+		moveItem(file as TFile | TFolder, selectedPath, result.pastOption, move);
 	if (move) new Notice(`File(s) moved to ${selectedPath}`, 4000);
 	else new Notice(`File(s) copied to ${selectedPath}`, 4000);
 }
@@ -147,24 +161,30 @@ async function makeCopy(
 	choice: number,
 	move?: boolean
 ) {
-	if (choice === 2) {
+	if (choice === 2) {	// Create an incremented version
 		const fileExists = await fs.pathExists(destinationPath);
 		if (fileExists) {
 			const baseFileName = path.parse(fileName).name;
 			const extension = path.parse(fileName).ext;
+			let versionedFileName="";
 			let version = 1;
-			let versionedFileName = `${baseFileName} (${version})${extension}`;
-			while (
-				await fs.pathExists(path.join(selectedPath, versionedFileName))
-			) {
-				version++;
+			const regex = /^(.*) \((\d+)\)$/; // Expression régulière pour vérifier le format du nom de fichier
+			const match = baseFileName.match(regex);
+			if (match) {
+				versionedFileName = `${match[1]} (${parseInt(match[2]) + 1})${extension}`
+			}else{
 				versionedFileName = `${baseFileName} (${version})${extension}`;
+				while (
+					await fs.pathExists(path.join(selectedPath, versionedFileName))
+				) {
+					version++;
+					versionedFileName = `${baseFileName} (${version})${extension}`;
+				}
 			}
 			destinationPath = path.join(selectedPath, versionedFileName);
 		}
-		// Create an incremented version
 	}
-	try{await fs.copy(normalizedFullPath, destinationPath);}catch(err){
+	try { await fs.copy(normalizedFullPath, destinationPath); } catch (err) {
 		console.log(err)
 	}
 	if (move) {

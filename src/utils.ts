@@ -8,7 +8,7 @@ export async function picker(
         properties
     });
     if (properties.includes("multiSelections")) return dirPath
-    return dirPath[0];
+    else return dirPath[0];
 }
 
 
