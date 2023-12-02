@@ -1,13 +1,8 @@
-// attached when copying directory?
-
 import { Notice, TFile, TFolder, normalizePath } from "obsidian";
 import { OutFromVaultConfirmModal } from "./out-of-vault-confirm_modal";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { openDirectoryInFileManager, picker } from "src/utils";
-
-//- move/copy folder(s) or file(s) out of the vault
-//  it will move files and replace duplicate existing ones. incremental option if file already exists in destination
 
 declare global {
 	interface Window {
@@ -29,7 +24,7 @@ export async function openFileExplorer(
 	let runModal: boolean = false;
 	let attached: TFile[] = []
 	for (const file of files) {
-		const resoledLinks = hasResolvedLinks(file)
+		const resoledLinks = await hasResolvedLinks(file)
 		if (resoledLinks?.length) { attached = [...new Set([...attached, ...resoledLinks])] }
 		runModal = await fileAlreadyInDest(file, selectedPath);
 		if (runModal) break
@@ -52,11 +47,14 @@ export async function openFileExplorer(
 	}
 }
 
-function hasResolvedLinks(file: TFile | TFolder): TFile[] | undefined {
+async function hasResolvedLinks(file: TFile | TFolder): Promise<TFile[] | undefined> {
 	if (file instanceof TFolder) return
 	const LinkFiles = []
-	const metadataCache = this.app.metadataCache.getCache(file?.path as string)
-	const fileLinks = metadataCache?.links
+	const metadataCache = await this.app.metadataCache.getCache(file?.path as string)
+	console.debug("metadataCache", metadataCache)
+	const metadataLinks = await metadataCache?.links || []
+	const metadataEmbeds = await metadataCache?.embeds || []
+	const fileLinks = [...new Set([...metadataLinks, ...metadataEmbeds])]
 	if (!fileLinks) return []
 	for (const fileLink of fileLinks) {
 		const link = fileLink.link
@@ -168,7 +166,7 @@ async function makeCopy(
 			const extension = path.parse(fileName).ext;
 			let versionedFileName="";
 			let version = 1;
-			const regex = /^(.*) \((\d+)\)$/; // Expression régulière pour vérifier le format du nom de fichier
+			const regex = /^(.*) \((\d+)\)$/;
 			const match = baseFileName.match(regex);
 			if (match) {
 				versionedFileName = `${match[1]} (${parseInt(match[2]) + 1})${extension}`

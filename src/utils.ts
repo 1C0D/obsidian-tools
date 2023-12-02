@@ -16,18 +16,11 @@ export async function picker(
 // export async function picker(
 //     message: string,
 //     properties: string[]
-// ): Promise<string | string[]> {
-//     const dialogOptions = {
-//         title: message,
-//         properties
-//     };
-
+// )
 //     const result = await window.electron.remote.dialog.showOpenDialog(window.electron.remote.getCurrentWindow(), dialogOptions);
-
 //     if (result.canceled) {
 //         return ''; // Ou gérer l'annulation comme nécessaire
 //     }
-
 //     if (properties.includes('multiSelections')) {
 //         return result.filePaths; // Retourne un tableau de chemins de fichiers
 //     } else {

@@ -1,4 +1,3 @@
-// TODO: move to vault increment ? add notice end operations. move attached deps links
 import {
 	Plugin,
 	TFile,
@@ -16,7 +15,7 @@ export default class Tools extends Plugin {
 
 	async onload() {
 		// await this.loadSettings();
-		// this.addSettingTab(new ETVSettingTab(this.app, this));
+		// this.addSettingTab(new ToolsSettingTab(this.app, this));
 
 		// move out from vault 1 file/dir selection
 		this.registerEvent(
@@ -59,9 +58,6 @@ export default class Tools extends Plugin {
 			}
 		})
 	}
-
-
-
 
 	// async loadSettings() {
 	// 	this.settings = Object.assign(
