@@ -1,5 +1,5 @@
 import { App, Modal, Setting } from "obsidian";
-import Tools from "./main";
+import type Tools from "../main";
 
 export class OutFromVaultConfirmModal extends Modal {
 	constructor(
@@ -23,21 +23,8 @@ export class OutFromVaultConfirmModal extends Modal {
 		this.contentEl.createEl("p", {
 			text: `choose paste option:`,
 		});
-		// after newSetting checkbox applyAll
+
 		const newSetting = new Setting(this.contentEl);
-		// const span = newSetting.settingEl.createEl("span", {
-		// 	text: "apply to all",
-		// });
-		// span.style.marginLeft = "3px";
-		// const checkbox = newSetting.settingEl.createEl("input", {
-		// 	type: "checkbox",
-		// });
-		// checkbox.checked = this.plugin.applyAll;
-		// checkbox.addEventListener("change", async () => {
-		// 	this.plugin.applyAll = checkbox.checked;
-		// 	await this.plugin.saveSettings();
-		// 	console.log("this.plugin.applyAll After", this.plugin.applyAll);
-		// });
 
 		newSetting
 			.addButton((b) => {

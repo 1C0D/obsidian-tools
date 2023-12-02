@@ -1,7 +1,8 @@
-import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
+import { Notice, TFile, TFolder, normalizePath } from "obsidian";
 import { OutFromVaultConfirmModal } from "./out-of-vault-confirm_modal";
 import * as fs from "fs-extra";
 import * as path from "path";
+import { openDirectoryInFileManager, picker } from "src/utils";
 
 //- move/copy folder(s) or file(s) out of the vault
 //  it will move files and replace duplicate existing ones. incremental option if file already exists in destination
@@ -14,15 +15,20 @@ declare global {
 
 export async function openFileExplorer(
 	files: TFile | TFile[] | TFolder | TFolder[],
-    job:string,
+	job: string,
 	move?: boolean
 ) {
-	const selectedPath: string = await picker(job);
+	const msg =
+		job === "move"
+			? "Move out from Vault: select directory"
+			: "Copy out from Vault: select directory";
+	const selectedPath = await picker(msg, ["openDirectory"]) as string;
 	if (!selectedPath) return;
-	let runModal;
+	let runModal: boolean = false;
 	if (Array.isArray(files)) {
 		for (const file of files) {
 			runModal = await doesFileExists(file, selectedPath);
+			if (runModal) break
 		}
 	} else {
 		runModal = await doesFileExists(files, selectedPath);
@@ -40,6 +46,7 @@ export async function openFileExplorer(
 		if (move) await withoutModal(files, selectedPath, true);
 		else await withoutModal(files, selectedPath);
 	}
+	await openDirectoryInFileManager(selectedPath)
 }
 
 async function doesFileExists(
@@ -77,7 +84,7 @@ async function simpleCopy(
 	selectedPath: string,
 	move?: boolean
 ) {
-	const { normalizedFullPath, fileName, destinationPath } =
+	const { normalizedFullPath, destinationPath } =
 		getDestinationPath(file as TFile | TFolder, selectedPath);
 	await fs.copy(normalizedFullPath, destinationPath);
 	if (move) {
@@ -129,17 +136,7 @@ function getDestinationPath(file: TFile | TFolder, selectedPath: string) {
 	return { normalizedFullPath, fileName, destinationPath };
 }
 
-async function picker(job:string) {
-    const message =
-		job === "move"
-			? "Move out from Vault: select directory"
-			: "Copy out from Vault: select directory";
-	let dirPath: string[] = window.electron.remote.dialog.showOpenDialogSync({
-		title: message,
-		properties: ["openDirectory"],
-	});
-	return dirPath[0];
-}
+
 
 async function makeCopy(
 	file: TFile | TFolder,
@@ -151,7 +148,6 @@ async function makeCopy(
 	move?: boolean
 ) {
 	if (choice === 2) {
-		console.log("choice 2");
 		const fileExists = await fs.pathExists(destinationPath);
 		if (fileExists) {
 			const baseFileName = path.parse(fileName).name;
@@ -168,7 +164,9 @@ async function makeCopy(
 		}
 		// Create an incremented version
 	}
-	await fs.copy(normalizedFullPath, destinationPath);
+	try{await fs.copy(normalizedFullPath, destinationPath);}catch(err){
+		console.log(err)
+	}
 	if (move) {
 		this.app.vault.trash(file, true);
 	}

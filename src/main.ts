@@ -1,20 +1,17 @@
+// move to vault increment ?
+
+import * as fs from "fs-extra";
+import * as path from "path";
 import {
-	App,
-	Menu,
-	MenuItem,
 	Plugin,
-	PluginSettingTab,
 	TFile,
 	TFolder,
 } from "obsidian";
-
-import { openFileExplorer } from "./copy-move-out-of-vault";
-
-
-
+import { MultiFilesMenus, SingleFileMenus } from "./move out from vault/move-out-menus";
+import { picker } from "./utils";
+import { moveToVault } from "./move to vault/move-to-vault";
 
 // interface ToolsSettings {}
-
 // const DEFAULT_SETTINGS: ToolsSettings = {};
 
 export default class Tools extends Plugin {
@@ -25,55 +22,50 @@ export default class Tools extends Plugin {
 		// await this.loadSettings();
 		// this.addSettingTab(new ETVSettingTab(this.app, this));
 
-		// 1 file selection
+		// move out from vault 1 file/dir selection
 		this.registerEvent(
-			(this.app as any).workspace.on(
-				"file-menu",
-				(menu: Menu, file: TFile | TFolder) => {
-					menu.addItem((item: MenuItem) => {
-						item.setTitle("Copy Out Of Vault");
-						item.setIcon("copy");
-						item.onClick(async () => {
-							openFileExplorer(file, "copy");
-						});
-					});
-					menu.addItem((item: MenuItem) => {
-						item.setTitle("Move Out Of Vault");
-						item.setIcon("scissors");
-						item.onClick(async () => {
-							openFileExplorer(file,"move", true);
-						});
-					});
-				}
-			)
+			SingleFileMenus()
 		);
-		// multi files selection (or directories?)
+		// move out from vault 1 file selection multi selection
 		this.registerEvent(
-			(this.app as any).workspace.on(
-				"files-menu",
-				(menu: Menu, files: TFile[] | TFolder[]) => {
-					menu.addItem((item: MenuItem) => {
-						item.setTitle("Copy Out From Vault");
-						item.setIcon("copy");
-						item.onClick(async () => {
-							openFileExplorer(files,"copy");
-						});
-					});
-					menu.addItem((item: MenuItem) => {
-						item.setTitle("Move Out From Vault");
-						item.setIcon("scissors");
-						item.onClick(async () => {
-							openFileExplorer(files,"move", true);
-						});
-					});
-				}
-			)
+			MultiFilesMenus()
 		);
+
+		this.addCommand({
+			id: 'move-files-to-vault',
+			name: 'Move file(s) to Vault',
+			callback: () => {
+				moveToVault(false, true)
+			}
+		})
+
+		this.addCommand({
+			id: 'move-directory-to-vault',
+			name: 'Move directory to Vault',
+			callback: () => {
+				moveToVault(true, true)
+			}
+		})
+
+		this.addCommand({
+			id: 'copy-files-to-vault',
+			name: 'Copy file(s) to Vault',
+			callback: () => {
+				moveToVault(false)
+			}
+		})
+
+		this.addCommand({
+			id: 'copy-directory-to-vault',
+			name: 'Copy directory to Vault',
+			callback: () => {
+				moveToVault(true)
+			}
+		})
 	}
 
 
 
-	
 
 	// async loadSettings() {
 	// 	this.settings = Object.assign(
@@ -88,17 +80,4 @@ export default class Tools extends Plugin {
 	// }
 }
 
-class ETVSettingTab extends PluginSettingTab {
-	plugin: Tools;
 
-	constructor(app: App, plugin: Tools) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-		containerEl.empty();
-		containerEl.createEl("h2", { text: "Tools" });
-	}
-}
