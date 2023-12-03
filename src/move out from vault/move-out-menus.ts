@@ -1,29 +1,31 @@
 import { Menu, MenuItem, TFile, TFolder } from "obsidian";
-import { openFileExplorer } from "./copy-move-out-of-vault";
+import { movOpenFileExplorer } from "./copy-move-out-of-vault";
 
-export function SingleFileMenus() {
-    return (this.app as any).workspace.on("file-menu", FilesMenuCb())
+export function registerOutOfVault() {
+    this.registerEvent(
+        (this.app as any).workspace.on("file-menu", movFilesMenuCb())
+    );
+    // move out from vault 1 file selection multi selection
+    this.registerEvent(
+        (this.app as any).workspace.on("files-menu", movFilesMenuCb())
+    );
 }
 
-export function MultiFilesMenus() {
-    return (this.app as any).workspace.on("files-menu", FilesMenuCb())
-}
-
-export function FilesMenuCb() {
+export function movFilesMenuCb() {
     return (menu: Menu, files: (TFile | TFolder)[] | TFile | TFolder) => {
         if (!Array.isArray(files)) files = [files]
         menu.addItem((item: MenuItem) => {
             item.setTitle("Copy Out From Vault");
             item.setIcon("copy");
             item.onClick(async () => {
-                await openFileExplorer(files as (TFile | TFolder)[], "copy");
+                await movOpenFileExplorer(files as (TFile | TFolder)[], "copy");
             });
         });
         menu.addItem((item: MenuItem) => {
             item.setTitle("Move Out From Vault");
             item.setIcon("scissors");
             item.onClick(async () => {
-                await openFileExplorer(files as TFile[] | TFolder[], "move", true);
+                await movOpenFileExplorer(files as TFile[] | TFolder[], "move", true);
             });
         });
     }

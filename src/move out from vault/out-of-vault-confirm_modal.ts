@@ -1,15 +1,4 @@
 import { App, Modal, Setting, TFile } from "obsidian";
-import { MultiFilesMenus, SingleFileMenus } from "./move-out-menus";
-
-export function registerOutOfVault(){
-	this.registerEvent(
-		SingleFileMenus()
-	);
-	// move out from vault 1 file selection multi selection
-	this.registerEvent(
-		MultiFilesMenus()
-	);
-}
 
 export class OutFromVaultConfirmModal extends Modal {
 	constructor(

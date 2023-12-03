@@ -11,21 +11,15 @@ export async function picker(
     else return dirPath[0];
 }
 
-
-// exactement pareil mais plus long...
+// other way...
 // export async function picker(
 //     message: string,
 //     properties: string[]
-// )
+// ) {
 //     const result = await window.electron.remote.dialog.showOpenDialog(window.electron.remote.getCurrentWindow(), dialogOptions);
-//     if (result.canceled) {
-//         return ''; // Ou gérer l'annulation comme nécessaire
-//     }
-//     if (properties.includes('multiSelections')) {
-//         return result.filePaths; // Retourne un tableau de chemins de fichiers
-//     } else {
-//         return result.filePaths[0]; // Retourne le chemin du premier fichier sélectionné
-//     }
+//     if (result.canceled) return '';
+//     if (properties.includes('multiSelections')) return result.filePaths;
+//     else return result.filePaths[0];
 // }
 
 

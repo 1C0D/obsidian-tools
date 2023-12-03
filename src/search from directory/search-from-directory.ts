@@ -1,12 +1,9 @@
 import { Editor, Menu, MenuItem, TFolder } from "obsidian";
 
 export function registerSFD() {
-  this.registerEvent(SfdToFileMenu());
-  this.registerEvent(SfdToEditorMenu());
+  this.registerEvent( (this.app as any).workspace.on("file-menu", SfdToFileMenuCb()));
+  this.registerEvent((this.app as any).workspace.on("editor-menu", SfdToEditorMenuCb()));
 }
-
-export function SfdToFileMenu() { return (this.app as any).workspace.on("file-menu", SfdToFileMenuCb()) }
-export function SfdToEditorMenu() { return (this.app as any).workspace.on("editor-menu", SfdToEditorMenuCb()) }
 
 export function SfdToFileMenuCb() {
   return (menu: Menu, folder: TFolder) => {

@@ -10,7 +10,7 @@ declare global {
 	}
 }
 
-export async function openFileExplorer(
+export async function movOpenFileExplorer(
 	files: (TFile | TFolder)[],
 	job: string,
 	move?: boolean

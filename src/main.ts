@@ -3,11 +3,12 @@ import {
 	TFile,
 	TFolder,
 } from "obsidian";
-import { addMovetoVault, moveToVault } from "./move to vault/move-to-vault";
+import { addMovetoVault } from "./move to vault/move-to-vault";
 import { ToolsSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, ToolsSettings } from "./types";
-import { registerOutOfVault } from "./move out from vault/out-of-vault-confirm_modal";
-import { SfdToEditorMenu, SfdToFileMenu, registerSFD } from "./search from directory/search-from-directory";
+import { ToolsSettings } from "./types";
+import { registerSFD } from "./search from directory/search-from-directory";
+import { registerOutOfVault } from "./move out from vault/move-out-menus";
+import { DEFAULT_SETTINGS } from "./variables";
 
 export default class Tools extends Plugin {
 	settings: ToolsSettings;
@@ -16,6 +17,7 @@ export default class Tools extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new ToolsSettingTab(this.app, this));
+		
 		if (this.settings["move-out-from-vault"]) {
 			registerOutOfVault.bind(this)()
 		}
@@ -27,18 +29,6 @@ export default class Tools extends Plugin {
 		if (this.settings["search-from-directory"]) {
 			registerSFD.bind(this)()
 		}
-
-		// this.app.workspace.onLayoutReady(() => {
-		// 	let obsidianToolsCommands = Object.keys((this.app as any).commands.commands)
-		// 		.filter((key) => {
-		// 			return key.startsWith('obsidian-my-tools');
-		// 		})
-		// 		// .reduce((acc, [commandId, command]) => {
-		// 		// 	acc[commandId] = command;
-		// 		// 	return acc;
-		// 		// }, {} as Record<string, any>);
-		// 	console.log("obsidianToolsCommands", obsidianToolsCommands)
-		// })
 	}
 
 	async loadSettings() {
