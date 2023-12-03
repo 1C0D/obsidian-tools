@@ -63,9 +63,10 @@ export class ToolsSettingTab extends PluginSettingTab {
                     } else {
                         await (this.app as any).workspace.off("file-menu", SfdToFileMenuCb.bind(this.plugin)())
                         await (this.app as any).workspace.off("editor-menu", SfdToEditorMenuCb.bind(this.plugin)())
+                        await (this.app as any).commands.executeCommandById('app:reload')
                     }
                 })
-            }).setName("search from directory")
+            }).setName("search from directory(when turned off a reload is done)")
     }
 }
 
