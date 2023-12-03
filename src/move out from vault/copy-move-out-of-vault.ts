@@ -84,13 +84,10 @@ async function withoutModal(
 	selectedPath: string,
 	move?: boolean
 ) {
-	if (Array.isArray(files)) {
-		for (const file of files) {
-			await simpleCopy(file, selectedPath, move);
-		}
-	} else {
-		await simpleCopy(files, selectedPath, move);
+	for (const file of files) {
+		await simpleCopy(file, selectedPath, move);
 	}
+
 	new Notice(`File(s) copied to ${selectedPath}`, 4000);
 }
 
@@ -144,11 +141,9 @@ function getDestinationPath(file: TFile | TFolder, selectedPath: string) {
 	const filePath = (this.app as any).vault.adapter.getFullPath(file.path);
 	const normalizedFullPath = normalizePath(filePath);
 	const fileName = path.basename(normalizedFullPath);
-	const destinationPath = path.join(selectedPath, fileName);
+	const destinationPath = normalizePath(path.join(selectedPath, fileName));
 	return { normalizedFullPath, fileName, destinationPath };
 }
-
-
 
 async function makeCopy(
 	file: TFile | TFolder,
@@ -164,22 +159,22 @@ async function makeCopy(
 		if (fileExists) {
 			const baseFileName = path.parse(fileName).name;
 			const extension = path.parse(fileName).ext;
-			let versionedFileName="";
+			let versionedFileName = "";
 			let version = 1;
 			const regex = /^(.*) \((\d+)\)$/;
 			const match = baseFileName.match(regex);
 			if (match) {
 				versionedFileName = `${match[1]} (${parseInt(match[2]) + 1})${extension}`
-			}else{
+			} else {
 				versionedFileName = `${baseFileName} (${version})${extension}`;
 				while (
-					await fs.pathExists(path.join(selectedPath, versionedFileName))
+					await fs.pathExists(normalizePath(path.join(selectedPath, versionedFileName)))
 				) {
 					version++;
 					versionedFileName = `${baseFileName} (${version})${extension}`;
 				}
 			}
-			destinationPath = path.join(selectedPath, versionedFileName);
+			destinationPath = normalizePath(path.join(selectedPath, versionedFileName));
 		}
 	}
 	try { await fs.copy(normalizedFullPath, destinationPath); } catch (err) {
