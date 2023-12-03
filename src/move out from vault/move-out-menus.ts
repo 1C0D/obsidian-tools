@@ -9,7 +9,7 @@ export function MultiFilesMenus() {
     return (this.app as any).workspace.on("files-menu", FilesMenuCb())
 }
 
-function FilesMenuCb() {
+export function FilesMenuCb() {
     return (menu: Menu, files: (TFile | TFolder)[] | TFile | TFolder) => {
         if (!Array.isArray(files)) files = [files]
         menu.addItem((item: MenuItem) => {
