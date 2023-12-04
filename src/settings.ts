@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import type Tools from "./main";
-import { ToggleElement, ToolsSettings } from "./types";
 import { settingsList } from "./variables";
+import { ToggleElement, ToolsSettings } from "./types/global";
 
 export class ToolsSettingTab extends PluginSettingTab {
     plugin: Tools;

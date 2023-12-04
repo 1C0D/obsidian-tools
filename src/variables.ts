@@ -1,7 +1,7 @@
 import { movFilesMenuCb, registerOutOfVault } from "./move out from vault/move-out-menus";
 import { addMovetoVault } from "./move to vault/move-to-vault";
 import { SfdToEditorMenuCb, SfdToFileMenuCb, registerSFD } from "./search from directory/search-from-directory";
-import { ToggleElement, ToolsSettings } from "./types";
+import { ToggleElement, ToolsSettings } from "./types/global";
 
 export const DEFAULT_SETTINGS: ToolsSettings = {
     "move-out-from-vault": true,

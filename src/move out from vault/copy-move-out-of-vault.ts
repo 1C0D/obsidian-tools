@@ -4,12 +4,6 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import { openDirectoryInFileManager, picker } from "src/utils";
 
-declare global {
-	interface Window {
-		electron: any;
-	}
-}
-
 export async function movOpenFileExplorer(
 	files: (TFile | TFolder)[],
 	job: string,

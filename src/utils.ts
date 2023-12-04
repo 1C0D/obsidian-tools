@@ -1,3 +1,10 @@
+declare global {
+    interface Window {
+        electron: any;
+        require: NodeRequire;
+    }
+}
+
 export async function picker(
     message: string,
     properties: string[]
