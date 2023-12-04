@@ -32,9 +32,10 @@ export async function picker(
 
 export async function openDirectoryInFileManager(dirPath: string) {
     let shell = window.electron.remote.shell;
-    try {
+    // try {
         await shell.openExternal(dirPath);
-    } catch (err) {
-        console.log(err);
-    }
+    // } catch (err) {
+    //     console.log("error there")
+    //     console.log(err);
+    // }
 }
