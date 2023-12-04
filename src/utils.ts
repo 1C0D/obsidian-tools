@@ -34,6 +34,7 @@ export async function openDirectoryInFileManager(dirPath: string) {
     let shell = window.electron.remote.shell;
     // try {
         await shell.openExternal(dirPath);
+        console.log("we are there")
     // } catch (err) {
     //     console.log("error there")
     //     console.log(err);
