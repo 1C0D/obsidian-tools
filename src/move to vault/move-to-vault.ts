@@ -1,8 +1,6 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import { picker } from "src/utils";
-import { normalizePath } from "obsidian";
-
 
 export function addMovetoVault() {
     this.addCommand({
@@ -48,7 +46,7 @@ export async function moveToVault(directory: boolean, move?: boolean) {
     // move selected files to vault
     selectedPaths.forEach(async (p) => {
         const fileName = path.basename(p);
-        const destination = normalizePath(path.join(vaultPath, fileName as string))
+        const destination = path.join(vaultPath, fileName as string)
         try {
             if (move) {
                 await fs.move(p, destination)

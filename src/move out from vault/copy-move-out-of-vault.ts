@@ -1,4 +1,4 @@
-import { Notice, TFile, TFolder, normalizePath } from "obsidian";
+import { Notice, TFile, TFolder } from "obsidian";
 import { OutFromVaultConfirmModal } from "./out-of-vault-confirm_modal";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -90,9 +90,9 @@ async function simpleCopy(
 	selectedPath: string,
 	move?: boolean
 ) {
-	const { normalizedFullPath, destinationPath } =
+	const { filePath, destinationPath } =
 		getDestinationPath(file as TFile | TFolder, selectedPath);
-	await fs.copy(normalizedFullPath, destinationPath);
+	await fs.copy(filePath, destinationPath);
 	if (move) {
 		this.app.vault.trash(file, true);
 	}
@@ -117,14 +117,14 @@ async function moveItem(
 	result: number,
 	move?: boolean
 ) {
-	const { normalizedFullPath, fileName, destinationPath } =
+	const { filePath, fileName, destinationPath } =
 		getDestinationPath(file as TFile | TFolder, selectedPath);
 
 	makeCopy(
 		file,
 		fileName,
 		selectedPath,
-		normalizedFullPath,
+		filePath,
 		destinationPath,
 		result,
 		move
@@ -133,10 +133,9 @@ async function moveItem(
 
 function getDestinationPath(file: TFile | TFolder, selectedPath: string) {
 	const filePath = (this.app as any).vault.adapter.getFullPath(file.path);
-	const normalizedFullPath = normalizePath(filePath);
-	const fileName = path.basename(normalizedFullPath);
-	const destinationPath = normalizePath(path.join(selectedPath, fileName));
-	return { normalizedFullPath, fileName, destinationPath };
+	const fileName = path.basename(filePath);
+	const destinationPath = path.join(selectedPath, fileName);
+	return { filePath, fileName, destinationPath };
 }
 
 async function makeCopy(
@@ -162,13 +161,13 @@ async function makeCopy(
 			} else {
 				versionedFileName = `${baseFileName} (${version})${extension}`;
 				while (
-					await fs.pathExists(normalizePath(path.join(selectedPath, versionedFileName)))
+					await fs.pathExists(path.join(selectedPath, versionedFileName))
 				) {
 					version++;
 					versionedFileName = `${baseFileName} (${version})${extension}`;
 				}
 			}
-			destinationPath = normalizePath(path.join(selectedPath, versionedFileName));
+			destinationPath = path.join(selectedPath, versionedFileName);
 		}
 	}
 	try { await fs.copy(normalizedFullPath, destinationPath); } catch (err) {
