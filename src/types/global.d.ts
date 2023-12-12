@@ -11,3 +11,12 @@ interface ToggleElement {
     callback: (value: boolean) => Promise<void>;
     name: string
 }
+
+declare module "obsidian" {
+    interface App {
+        commands: {
+            executeCommandById(id: string, event?: Event): void,
+            executeCommand():void
+        }
+    }
+}

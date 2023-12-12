@@ -1,3 +1,5 @@
+import { Platform } from "obsidian";
+
 declare global {
     interface Window {
         electron: any;
@@ -31,12 +33,12 @@ export async function picker(
 
 
 export async function openDirectoryInFileManager(dirPath: string) {
+    // if(Platform.isMacOS) shell = window.electron.remote.shell;
     let shell = window.electron.remote.shell;
-    // try {
-        await shell.openExternal(dirPath);
-        console.log("we are there")
-    // } catch (err) {
-    //     console.log("error there")
-    //     console.log(err);
-    // }
+    try {
+        // await shell.openExternal(dirPath); // I had a bug on mac
+        await shell.openPath(dirPath); // let's try this
+    } catch (err) {
+        console.log(err);
+    }
 }
