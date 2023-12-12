@@ -17,6 +17,7 @@ declare module "obsidian" {
         commands: {
             executeCommandById(id: string, event?: Event): void,
             executeCommand():void
+            commands: Record<string, Command>
         }
     }
 }
