@@ -1,16 +1,9 @@
 # obsidian-tools
 little tools workshop
 
-
-New tool! repeat last command
-
-- repeat last command: 
-    - run a command in palette Commands, USING CLICK MOUSE to confim and not enter.
-    - Then run "Repeat last command" (enter or click)
-    - add a shortcut to it. magical!
-    
-N.B: clicking on the command the first time is important to get its name
-
+- repeat last command
+- repeat last commands (max number of commands in settings) → open suggester menu
+![cmds](./ressources/commands.png)
 
 - Move/Copy File(s)/Dir(s) OUT of Vault[^1]
 - Move/Copy File(s)/Dir(s) TO Vault

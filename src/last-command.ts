@@ -54,20 +54,14 @@ export class LastCommandsModal extends SuggestModal<LastCommand> {
     }
 
     getSuggestions(query: string): LastCommand[] {
-        const lastCommandsArr = [...this.plugin.lastCommands].reverse()
-        return lastCommandsArr.filter((cmd) =>
+        const lastCommandsArr = this.plugin.lastCommands.map(item => getCommandName(item)).reverse();
+        return lastCommandsArr.filter(cmd =>
             cmd.toLowerCase().includes(query.toLowerCase())
         );
     }
 
     renderSuggestion(cmd: LastCommand, el: HTMLElement) {
         el.createEl("div", { text: cmd });
-        el.setCssStyles({
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            textAlign: 'center',
-        });
     }
 
     onChooseSuggestion(cmd: LastCommand, evt: MouseEvent | KeyboardEvent) {
