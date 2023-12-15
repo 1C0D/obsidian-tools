@@ -10,12 +10,14 @@ import { registerSFD } from "./search from directory/search-from-directory";
 import { registerOutOfVault } from "./move out from vault/move-out-menus";
 import { DEFAULT_SETTINGS } from "./variables";
 import { ToolsSettings } from "./types/global";
-import { cb, onCommandTrigger } from "./last-command";
+import { LastCommandsModal, onCommandTrigger, registerCommand } from "./last-command";
 
 export default class Tools extends Plugin {
 	settings: ToolsSettings;
 	files: TFile[] | TFolder[];
 	lastCommand: string | null
+	lastCommands: string[] = []
+
 
 	async onload() {
 		await this.loadSettings();
@@ -34,16 +36,33 @@ export default class Tools extends Plugin {
 		}
 
 		this.register(
-			onCommandTrigger("command-palette:open", this, async (plugin) => {
-				document.addEventListener("click", (e) => cb(e, plugin));
-			})
-		);
+			onCommandTrigger("command-palette:open", () => {
+				const modal = (this.app as any).internalPlugins.getPluginById("command-palette").instance.modal
+				const resultContainerEl = modal.resultContainerEl
+				resultContainerEl.addEventListener("click", (e: MouseEvent) => registerCommand(e, this));
+				document.addEventListener("keyup", (e: KeyboardEvent) => registerCommand(e, this))
+			}
+			))
 
 		this.addCommand({
 			id: "repeat-command",
 			name: "Repeat last command",
 			callback: async () => {
 				if (this.lastCommand) this.app.commands.executeCommandById(this.lastCommand)
+				else new Notice("No last command")
+			},
+		});
+
+		this.addCommand({
+			id: "repeat-commands",
+			name: "Repeat last commandS",
+			callback: async () => {
+				if (this.lastCommands.length === 1) {
+					// console.log("lenght 1")
+					this.app.commands.executeCommandById(this.lastCommands.values().next().value)
+				}
+				else if (this.lastCommands.length > 1) new LastCommandsModal(this).open()
+				// this.app.commands.executeCommandById(this.lastCommands)
 				else new Notice("No last command")
 			},
 		});

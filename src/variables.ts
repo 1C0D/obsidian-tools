@@ -6,7 +6,8 @@ import { ToggleElement, ToolsSettings } from "./types/global";
 export const DEFAULT_SETTINGS: ToolsSettings = {
     "move-out-from-vault": true,
     "move-to-vault": true,
-    "search-from-directory": true
+    "search-from-directory": true,
+    "maxLastCmds": 3
 };
 
 export const settingsList: ToggleElement[] = [

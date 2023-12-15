@@ -1,13 +1,13 @@
 import { around } from "monkey-around";
 import Tools from "./main";
-import { Command } from "obsidian";
+import { App, Command, SuggestModal } from "obsidian";
 
-export function onCommandTrigger(id: string, plugin: Tools, cb: (plugin: Tools) => void) {//notice we must pass plugin to use it in cb
+export function onCommandTrigger(id: string, cb: () => void) {//notice we must pass plugin to use it in cb
     const uninstallCommand = around(this.app.commands, {
         executeCommand(originalMethod) {
             return function (...args: Command[]) {
                 if (args[0].id === id) {
-                    cb(plugin);
+                    cb();
                 }
                 const result =
                     originalMethod && originalMethod.apply(this, args);
@@ -18,32 +18,68 @@ export function onCommandTrigger(id: string, plugin: Tools, cb: (plugin: Tools) 
     return uninstallCommand;
 }
 
-export const cb = (e: MouseEvent, plugin: Tools) => {
-    const clickedElement = e.target as HTMLElement;
-    // console.log("clickedElement", clickedElement)
-    const suggestionItem = clickedElement.closest('.suggestion-item.mod-complex.is-selected');
-    let span = suggestionItem ?? clickedElement.closest('span');
+export function registerCommand(e: MouseEvent | KeyboardEvent, plugin: Tools) {
+    if (e instanceof KeyboardEvent && e.key !== "Enter") return
+    const chooser = (plugin.app as any).internalPlugins.getPluginById("command-palette").instance.modal.chooser
+    const selectedItem = chooser.selectedItem
+    const selectedId = chooser.values[selectedItem]?.item.id
 
-    if (span) {
-        // console.log("span", span)
-        // const name = clickedElement.innerText; // it would have been to easy...
-        const namePrefix = span.querySelector('.suggestion-prefix')?.textContent?.trim() ?? '';
-        const nameSuffix = span.querySelector('.suggestion-title > span:last-child')?.textContent?.trim() ?? '';
-        const name = namePrefix ? namePrefix + ': ' + nameSuffix : nameSuffix.trim(); // ok
-        // console.log("name", name)
-        const commandName = getCommandId(name)
-        if (name !== "My tools: Repeat last command") plugin.lastCommand = commandName
-        // console.log("plugin.lastCommand:", plugin.lastCommand)
-        setTimeout(() => { document.removeEventListener("click", (e) => cb(e, plugin)); }, 2000)
+    if (selectedId === "obsidian-my-tools:repeat-command" ||
+        selectedId === "obsidian-my-tools:get-last-command" ||
+        selectedId === "obsidian-my-tools:get-last-commands"
+    ) return
+
+    plugin.lastCommand = selectedId
+    // commands
+    const maxEntries = plugin.settings.maxLastCmds;
+    if (plugin.lastCommands.length > maxEntries) {
+        plugin.lastCommands.shift();
     }
-    setTimeout(() => { document.removeEventListener("click", (e) => cb(e, plugin)); }, 15000) // time for seeking, and if exit without selection remove listener anyway
+    plugin.lastCommands.push(selectedId)
+    plugin.lastCommands = [...new Set(plugin.lastCommands)];
+    plugin.saveSettings()
+
+    setTimeout((plugin: Tools) => {
+        document.removeEventListener("keyup", (e: KeyboardEvent) => registerCommand
+        )
+    }, 4000);
 }
 
-function getCommandId(name: string) {
+type LastCommand = string
+
+export class LastCommandsModal extends SuggestModal<LastCommand> {
+    constructor(public plugin: Tools) {
+        super(plugin.app);
+        this.plugin = plugin;
+    }
+
+    getSuggestions(query: string): LastCommand[] {
+        const lastCommandsArr = [...this.plugin.lastCommands].reverse()
+        return lastCommandsArr.filter((cmd) =>
+            cmd.toLowerCase().includes(query.toLowerCase())
+        );
+    }
+
+    renderSuggestion(cmd: LastCommand, el: HTMLElement) {
+        el.createEl("div", { text: cmd });
+        el.setCssStyles({
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            textAlign: 'center',
+        });
+    }
+
+    onChooseSuggestion(cmd: LastCommand, evt: MouseEvent | KeyboardEvent) {
+        this.app.commands.executeCommandById(cmd)
+    }
+}
+
+function getCommandName(id: string) {
     for (const key in this.app.commands.commands) {
         const command = this.app.commands.commands[key];
-        if (command.name === name) {
-            return key;
+        if (command.id === id) {
+            return command.name;
         }
     }
     return null;
