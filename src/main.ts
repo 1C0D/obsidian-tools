@@ -17,7 +17,7 @@ export default class Tools extends Plugin {
 	files: TFile[] | TFolder[];
 	lastCommand: string | null
 	lastCommands: string[] = []
-
+	mousePosition: { x: number, y: number }
 
 	async onload() {
 		await this.loadSettings();
@@ -34,15 +34,22 @@ export default class Tools extends Plugin {
 		if (this.settings["search-from-directory"]) {
 			registerSFD.bind(this)()
 		}
-
 		this.register(
 			onCommandTrigger("command-palette:open", () => {
 				const modal = (this.app as any).internalPlugins.getPluginById("command-palette").instance.modal
 				const resultContainerEl = modal.resultContainerEl
-				resultContainerEl.addEventListener("click", (e: MouseEvent) => registerCommand(e, this));
-				document.addEventListener("keyup", (e: KeyboardEvent) => registerCommand(e, this))
-			}
-			))
+				resultContainerEl.addEventListener("click", async (e: MouseEvent) => await registerCommand(e, this));
+
+				const keyupEventListener = async (e: KeyboardEvent) => await registerCommand(e, this);
+				document.addEventListener("keyup", keyupEventListener)
+
+				// to erase the document.listener
+				const closeModal = (this.app as any).internalPlugins.getPluginById("command-palette").instance.modal.onClose;
+				(this.app as any).internalPlugins.getPluginById("command-palette").instance.modal.onClose = () => {
+					document.removeEventListener("keyup", keyupEventListener)
+					closeModal.apply(modal);
+				};
+			}))
 
 		this.addCommand({
 			id: "repeat-command",
@@ -57,12 +64,7 @@ export default class Tools extends Plugin {
 			id: "repeat-commands",
 			name: "Repeat last commandS",
 			callback: async () => {
-				if (this.lastCommands.length === 1) {
-					// console.log("lenght 1")
-					this.app.commands.executeCommandById(this.lastCommands.values().next().value)
-				}
-				else if (this.lastCommands.length > 1) new LastCommandsModal(this).open()
-				// this.app.commands.executeCommandById(this.lastCommands)
+				if (this.lastCommands.length) new LastCommandsModal(this).open()
 				else new Notice("No last command")
 			},
 		});
