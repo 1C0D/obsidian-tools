@@ -10,7 +10,7 @@ import { registerSFD } from "./search from directory/search-from-directory";
 import { registerOutOfVault } from "./move out from vault/move-out-menus";
 import { DEFAULT_SETTINGS } from "./variables";
 import { ToolsSettings } from "./types/global";
-import { LastCommandsModal, onCommandTrigger, registerCommand } from "./last-command";
+import { LastCommandsModal, onCommandTrigger } from "./last-command";
 
 export default class Tools extends Plugin {
 	settings: ToolsSettings;
@@ -34,22 +34,7 @@ export default class Tools extends Plugin {
 		if (this.settings["search-from-directory"]) {
 			registerSFD.bind(this)()
 		}
-		this.register(
-			onCommandTrigger("command-palette:open", () => {
-				const modal = (this.app as any).internalPlugins.getPluginById("command-palette").instance.modal
-				const resultContainerEl = modal.resultContainerEl
-				resultContainerEl.addEventListener("click", async (e: MouseEvent) => await registerCommand(e, this));
-
-				const keyupEventListener = async (e: KeyboardEvent) => await registerCommand(e, this);
-				document.addEventListener("keyup", keyupEventListener)
-
-				// to erase the document.listener
-				const closeModal = (this.app as any).internalPlugins.getPluginById("command-palette").instance.modal.onClose;
-				(this.app as any).internalPlugins.getPluginById("command-palette").instance.modal.onClose = () => {
-					document.removeEventListener("keyup", keyupEventListener)
-					closeModal.apply(modal);
-				};
-			}))
+		this.register(onCommandTrigger(this))
 
 		this.addCommand({
 			id: "repeat-command",
@@ -62,7 +47,7 @@ export default class Tools extends Plugin {
 
 		this.addCommand({
 			id: "repeat-commands",
-			name: "Repeat last commandS",
+			name: "Repeat last commands",
 			callback: async () => {
 				if (this.lastCommands.length) new LastCommandsModal(this).open()
 				else new Notice("No last command")
