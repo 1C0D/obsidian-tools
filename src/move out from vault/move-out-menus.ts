@@ -3,11 +3,11 @@ import { movOpenFileExplorer } from "./copy-move-out-of-vault";
 
 export function registerOutOfVault() {
     this.registerEvent(
-        (this.app as any).workspace.on("file-menu", movFilesMenuCb())
+        this.app.workspace.on("file-menu", movFilesMenuCb())
     );
     // move out from vault 1 file selection multi selection
     this.registerEvent(
-        (this.app as any).workspace.on("files-menu", movFilesMenuCb())
+        this.app.workspace.on("files-menu", movFilesMenuCb())
     );
 }
 

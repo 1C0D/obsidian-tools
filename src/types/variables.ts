@@ -1,13 +1,14 @@
-import { movFilesMenuCb, registerOutOfVault } from "./move out from vault/move-out-menus";
-import { addMovetoVault } from "./move to vault/move-to-vault";
-import { SfdToEditorMenuCb, SfdToFileMenuCb, registerSFD } from "./search from directory/search-from-directory";
-import { ToggleElement, ToolsSettings } from "./types/global";
+import { movFilesMenuCb, registerOutOfVault } from "../move out from vault/move-out-menus";
+import { addMovetoVault } from "../move to vault/move-to-vault";
+import { SfdToEditorMenuCb, SfdToFileMenuCb, registerSFD } from "../search from directory/search-from-directory";
+import { ToggleElement, ToolsSettings } from "./global";
 
 export const DEFAULT_SETTINGS: ToolsSettings = {
     "move-out-from-vault": true,
     "move-to-vault": true,
     "search-from-directory": true,
-    "maxLastCmds": 3
+    vaultDirs: {},
+    vaultFiles: {}
 };
 
 export const settingsList: ToggleElement[] = [
@@ -17,9 +18,9 @@ export const settingsList: ToggleElement[] = [
             if (value) {
                 await registerSFD.bind(this.plugin)();
             } else {
-                await (this.app as any).workspace.off("file-menu", SfdToFileMenuCb.bind(this.plugin)());
-                await (this.app as any).workspace.off("editor-menu", SfdToEditorMenuCb.bind(this.plugin)());
-                await (this.app as any).commands.executeCommandById('app:reload');
+                await this.app.workspace.off("file-menu", SfdToFileMenuCb.bind(this.plugin)());
+                await this.app.workspace.off("editor-menu", SfdToEditorMenuCb.bind(this.plugin)());
+                await this.app.commands.executeCommandById('app:reload');
             }
         },
         name: "search from directory(when turned off a reload is done)"
@@ -33,7 +34,7 @@ export const settingsList: ToggleElement[] = [
                     'obsidian-my-tools:move-files-to-vault', 'obsidian-my-tools:move-directory-to-vault', 'obsidian-my-tools:copy-files-to-vault', 'obsidian-my-tools:copy-directory-to-vault'
                 ]
 
-                for (const command of list) await (this.app as any).commands.removeCommand(command)
+                for (const command of list) await this.app.commands.removeCommand(command)
             }
         },
         name: "move/copy to vault"
@@ -43,9 +44,9 @@ export const settingsList: ToggleElement[] = [
             if (value) {
                 registerOutOfVault.bind(this.plugin)()
             } else {
-                await (this.app as any).workspace.off("file-menu", movFilesMenuCb.bind(this.plugin)())
-                await (this.app as any).workspace.off("files-menu", movFilesMenuCb.bind(this.plugin)())
-                await (this.app as any).commands.executeCommandById('app:reload')
+                await this.app.workspace.off("file-menu", movFilesMenuCb.bind(this.plugin)())
+                await this.app.workspace.off("files-menu", movFilesMenuCb.bind(this.plugin)())
+                await this.app.commands.executeCommandById('app:reload')
             }
         },
         name: "move out from vault (when turned off a reload is done)"

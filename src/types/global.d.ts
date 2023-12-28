@@ -1,6 +1,3 @@
-import 'obsidian'
-
-
 interface toToggle {
     "move-out-from-vault": boolean;
     "move-to-vault": boolean;
@@ -8,7 +5,8 @@ interface toToggle {
 }
 
 interface ToolsSettings extends toToggle {
-    "maxLastCmds": number
+    vaultDirs: Record<string, boolean>,
+    vaultFiles: Record<string, boolean>
 }
 
 interface ToggleElement {
@@ -17,12 +15,20 @@ interface ToggleElement {
     name: string
 }
 
-declare module "obsidian" {
-    interface App {
-        commands: {
-            executeCommandById(id: string, event?: Event): void,
-            executeCommand(): void
-            commands: Record<string, Command>
-        }
-    }
-}
+export type ConfirmCallback = (confirmed: boolean) => void;
+
+
+
+
+
+
+// import 'obsidian'
+// declare module "obsidian" {
+//     interface App {
+//         commands: {
+//             executeCommandById(id: string, event?: Event): void,
+//             executeCommand(): void
+//             commands: Record<string, Command>
+//         }
+//     }
+// }

@@ -1,8 +1,8 @@
 import { Editor, Menu, MenuItem, TFolder } from "obsidian";
 
 export function registerSFD() {
-  this.registerEvent( (this.app as any).workspace.on("file-menu", SfdToFileMenuCb()));
-  this.registerEvent((this.app as any).workspace.on("editor-menu", SfdToEditorMenuCb()));
+  this.registerEvent( this.app.workspace.on("file-menu", SfdToFileMenuCb()));
+  this.registerEvent(this.app.workspace.on("editor-menu", SfdToEditorMenuCb()));
 }
 
 export function SfdToFileMenuCb() {
@@ -49,7 +49,7 @@ async function searchDir(folder: TFolder | null, selection = "", select = false)
       prefix = "";//root
     }
   }
-  (this.app as any).internalPlugins
+  this.app.internalPlugins
     .getPluginById("global-search")
     .instance.openGlobalSearch(prefix + selection);
 

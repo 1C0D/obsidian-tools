@@ -132,7 +132,7 @@ async function moveItem(
 }
 
 function getDestinationPath(file: TFile | TFolder, selectedPath: string) {
-	const filePath = (this.app as any).vault.adapter.getFullPath(file.path);
+	const filePath = this.app.vault.adapter.getFullPath(file.path);
 	const fileName = path.basename(filePath);
 	const destinationPath = path.join(selectedPath, fileName);
 	return { filePath, fileName, destinationPath };

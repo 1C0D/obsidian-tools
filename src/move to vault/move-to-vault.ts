@@ -37,7 +37,7 @@ export function addMovetoVault() {
 }
 
 export async function moveToVault(directory: boolean, move?: boolean) {
-    const vaultPath = (this.app as any).vault.adapter.getFullPath("");
+    const vaultPath = this.app.vault.adapter.getFullPath("");
     const msg = "Choose file(s) to import";
     const selectedPaths = directory ? await picker(msg, ['openDirectory', 'multiSelections']) as string[] : await picker(msg, ['openFile', 'multiSelections']) as string[];
 

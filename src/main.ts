@@ -1,5 +1,7 @@
+// todo: improve import files to vault. where? path
+// todo: copy vault profile. insert in UI
+
 import {
-	Notice,
 	Plugin,
 	TFile,
 	TFolder,
@@ -8,16 +10,13 @@ import { addMovetoVault } from "./move to vault/move-to-vault";
 import { ToolsSettingTab } from "./settings";
 import { registerSFD } from "./search from directory/search-from-directory";
 import { registerOutOfVault } from "./move out from vault/move-out-menus";
-import { DEFAULT_SETTINGS } from "./variables";
+import { DEFAULT_SETTINGS } from "./types/variables";
 import { ToolsSettings } from "./types/global";
-import { LastCommandsModal, onCommandTrigger } from "./last-command";
+import { importProfile } from "./importProfile";
 
 export default class Tools extends Plugin {
 	settings: ToolsSettings;
 	files: TFile[] | TFolder[];
-	lastCommand: string | null
-	lastCommands: string[] = []
-	mousePosition: { x: number, y: number }
 
 	async onload() {
 		await this.loadSettings();
@@ -34,23 +33,12 @@ export default class Tools extends Plugin {
 		if (this.settings["search-from-directory"]) {
 			registerSFD.bind(this)()
 		}
-		this.register(onCommandTrigger(this))
 
 		this.addCommand({
-			id: "repeat-command",
-			name: "Repeat last command",
+			id: "vault-profile",
+			name: "create vault profile",
 			callback: async () => {
-				if (this.lastCommand) this.app.commands.executeCommandById(this.lastCommand)
-				else new Notice("No last command")
-			},
-		});
-
-		this.addCommand({
-			id: "repeat-commands",
-			name: "Repeat last commands",
-			callback: async () => {
-				if (this.lastCommands.length) new LastCommandsModal(this).open()
-				else new Notice("No last command")
+				importProfile(this)
 			},
 		});
 	}

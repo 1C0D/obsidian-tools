@@ -1,7 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import type Tools from "./main";
-import { settingsList } from "./variables";
-import { ToggleElement, ToolsSettings, toToggle } from "./types/global";
+import { settingsList } from "./types/variables";
+import { ToggleElement, toToggle } from "./types/global";
 
 export class ToolsSettingTab extends PluginSettingTab {
     plugin: Tools;
@@ -16,18 +16,6 @@ export class ToolsSettingTab extends PluginSettingTab {
         El.empty();
         El.createEl("h2", { text: "Tools" });
         this.addToggleHandler(El, settingsList)
-        const setting = new Setting(El)
-        setting
-            .addSlider((slider) => {
-                slider
-                    .setLimits(2, 12, 1)
-                    .setValue(this.plugin.settings.maxLastCmds)
-                    .setDynamicTooltip()
-                    .onChange(async (value) => {
-                        this.plugin.settings.maxLastCmds = value;
-                        await this.plugin.saveSettings();
-                    });
-            })
     }
 
     addToggleHandler(El: HTMLElement, settingsList: ToggleElement[]) {

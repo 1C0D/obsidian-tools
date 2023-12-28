@@ -1,11 +1,7 @@
 # obsidian-tools
 little tools workshop
 
-Command Palette Improvements:
-- toggle pinned commands PRESSING TAB
-- repeat last command (I suggest: Ctrl Shift P)
-- repeat last commands (max number of commands in settings) → open suggester menu (I suggest: Ctrl Alt P)
-![cmds](./ressources/commands.png)
+For repeat last command, it's there now https://github.com/1C0D/obsidian-repeat-last-commands (waiting to be released)
 
 - Move/Copy File(s)/Dir(s) OUT of Vault[^1]
 - Move/Copy File(s)/Dir(s) TO Vault
