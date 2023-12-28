@@ -29,28 +29,16 @@ async function getThisVaultDir(complement: string) {
 }
 
 async function importDirs(plugin: Tools, dirPath: string) {
-    const obsidian = path.join(this.app.vault.adapter.getFullPath(""), ".obsidian")
+    const obsidian = path.join(this.app.vault.adapter.getFullPath(""), ".obsidian");
     const vaultDirs = plugin.settings.vaultDirs;
 
     for (const key of Object.keys(vaultDirs)) {
-        if (vaultDirs[key] === false) continue
-        const srcDir = path.join(dirPath, key)
-        const destination = path.join(obsidian, key)
+        if (vaultDirs[key] === false) continue;
+        const srcDir = path.join(dirPath, key);
+        const destination = path.join(obsidian, key);
 
         if (key === 'plugins') {
-            const topLevelDirs = fs.readdirSync(srcDir);
-            for (const dir of topLevelDirs) {
-                if (dir === 'node_modules') continue;
-                const sourcePath = path.join(srcDir, dir);
-                const destPath = path.join(destination, dir);
-                try {
-                    await fs.ensureDir(destPath)
-                    await fs.copy(sourcePath, destPath);
-                    console.debug(`${dir} imported`);
-                } catch (err) {
-                    console.error(`Error copying ${dir}: ${err}`);
-                }
-            }
+            await copyPlugins(srcDir, destination);
         } else {
             try {
                 await fs.copy(srcDir, destination);
@@ -58,6 +46,22 @@ async function importDirs(plugin: Tools, dirPath: string) {
             } catch (err) {
                 console.error(`Error copying ${key}: ${err}`);
             }
+        }
+    }
+}
+
+async function copyPlugins(src: string, dest: string) {
+    await fs.ensureDir(dest);
+    const files = await fs.readdir(src);
+    for (const file of files) {
+        const srcPath = path.join(src, file);
+        const destPath = path.join(dest, file);
+        const fileStats = await fs.stat(srcPath);
+        if (fileStats.isDirectory() && file !== 'node_modules') {
+            await copyPlugins(srcPath, destPath);
+        } else if (fileStats.isFile()) {
+            await fs.copy(srcPath, destPath);
+            console.debug(`${file} imported`);
         }
     }
 }
