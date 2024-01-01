@@ -14,6 +14,7 @@ export function registerOutOfVault() {
 export function movFilesMenuCb() {
     return (menu: Menu, files: (TFile | TFolder)[] | TFile | TFolder) => {
         if (!Array.isArray(files)) files = [files]
+        menu.addSeparator();
         menu.addItem((item: MenuItem) => {
             item.setTitle("Copy Out From Vault");
             item.setIcon("copy");

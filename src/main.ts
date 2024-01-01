@@ -6,7 +6,7 @@ import {
 	TFile,
 	TFolder,
 } from "obsidian";
-import { addMovetoVault } from "./move to vault/move-to-vault";
+import { addMovetoVault, registerMTVmenus } from "./move to vault/move-to-vault";
 import { ToolsSettingTab } from "./settings";
 import { registerSFD } from "./search from directory/search-from-directory";
 import { registerOutOfVault } from "./move out from vault/move-out-menus";
@@ -28,6 +28,7 @@ export default class Tools extends Plugin {
 
 		if (this.settings["move-to-vault"]) {
 			addMovetoVault.bind(this)()
+			registerMTVmenus.bind(this)()
 		}
 
 		if (this.settings["search-from-directory"]) {

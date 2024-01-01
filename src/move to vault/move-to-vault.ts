@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import { picker } from "src/utils";
+import { Menu, MenuItem, TFolder } from "obsidian";
 
 export function addMovetoVault() {
     this.addCommand({
@@ -23,7 +24,7 @@ export function addMovetoVault() {
         id: 'copy-files-to-vault',
         name: 'Copy file(s) to Vault',
         callback: () => {
-            moveToVault(false)
+            moveToVault(false, false)
         }
     })
 
@@ -31,14 +32,17 @@ export function addMovetoVault() {
         id: 'copy-directory-to-vault',
         name: 'Copy directory to Vault',
         callback: () => {
-            moveToVault(true)
+            moveToVault(true, false)
         }
     })
 }
 
-export async function moveToVault(directory: boolean, move?: boolean) {
-    const vaultPath = this.app.vault.adapter.getFullPath("");
-    const msg = "Choose file(s) to import";
+export async function moveToVault(directory: boolean, move: boolean, postPath?: string) {
+    let vaultPath = this.app.vault.adapter.getFullPath("");
+    if (postPath) {
+        vaultPath = path.join(vaultPath, postPath);
+    }
+    const msg = `Choose ${directory ? "dir(s)" : "file(s)"} to import`;
     const selectedPaths = directory ? await picker(msg, ['openDirectory', 'multiSelections']) as string[] : await picker(msg, ['openFile', 'multiSelections']) as string[];
 
     if (!selectedPaths) return;
@@ -60,4 +64,48 @@ export async function moveToVault(directory: boolean, move?: boolean) {
             console.error(`Error moving ${fileName}: ${err}`);
         }
     });
+}
+
+export function registerMTVmenus() {
+    this.registerEvent(this.app.workspace.on("file-menu", MTVFolderMenu()));
+}
+
+export function MTVFolderMenu() {
+    return (menu: Menu, folder: TFolder) => {
+        if (!(folder instanceof TFolder)) return;
+        menu.addSeparator();
+        menu.addItem((item: MenuItem) => {
+            item
+            .setTitle("Copy file(s) in folder")
+            .setIcon("copy")
+            .onClick(async () => {
+                moveToVault(false, false, folder.path);
+            });
+        });
+        menu.addItem((item: MenuItem) => {
+            item
+            .setTitle("Move file(s) in folder")
+            .setIcon("scissors")
+            .onClick(async () => {
+                moveToVault(false, true, folder.path);
+            });
+        });
+        menu.addItem((item: MenuItem) => {
+            item
+            .setTitle("Copy dir(s) in folder")
+            .setIcon("copy")
+            .onClick(async () => {
+                moveToVault(true, false, folder.path);
+            });
+        });
+        menu.addItem((item: MenuItem) => {
+            item
+            .setTitle("Move dir(s) in folder")
+            .setIcon("scissors")
+            .onClick(async () => {
+                moveToVault(true, true, folder.path);
+            });
+        });
+        
+    }
 }

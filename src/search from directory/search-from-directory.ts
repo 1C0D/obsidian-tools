@@ -8,6 +8,7 @@ export function registerSFD() {
 export function SfdToFileMenuCb() {
   return (menu: Menu, folder: TFolder) => {
     if (!(folder instanceof TFolder)) return;
+    menu.addSeparator();
     menu.addItem((item: MenuItem) => {
       item
         .setTitle("Search in folder")
@@ -55,7 +56,7 @@ async function searchDir(folder: TFolder | null, selection = "", select = false)
 
   // ensure text has been entered into the search input
   const searchLeaf = workspace.getLeavesOfType('search')[0];
-  const search = await searchLeaf.open(searchLeaf.view);
+  await searchLeaf.open(searchLeaf.view);
 
   const searchInput = document.querySelector(
     ".search-input-container input"
