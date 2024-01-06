@@ -16,15 +16,18 @@ function askQuestion(question: string): Promise<string> {
 
 (async () => {
     try {
-        execSync('npm run build');
-        console.log('npm run build successful.');
+        if (process.argv.includes('-b')) {
+            execSync('npm run build');
+            console.log('npm run build successful.');
+        }
 
         const input: string = await askQuestion('Enter commit message: ');
         rl.close();
 
-        const cleanedInput = input.replace(/^['"`]|['"`]$/g, '');
+        const cleanedInput = input.replace(/^["`]$/g, "'").replace(/\r\n/g, '\n');  
+        
         execSync('git add .');
-        execSync(`git commit -am "${cleanedInput}"`);
+        execSync(`git commit -m "${cleanedInput}"`);
         execSync('git push');
         console.log('Commit and push successful.');
     } catch (error) {
