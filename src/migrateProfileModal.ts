@@ -4,33 +4,30 @@ import { App, Modal, Setting } from "obsidian";
 import Tools from "./main";
 import { ConfirmCallback } from "./types/global";
 
-export async function setImportOptions(
+export async function setMigrateOptions(
     plugin: Tools,
     dirPath: string,
     message: string,
-    width?: number,
-    height?: number
+    isImport: boolean
 ): Promise<boolean> {
-    return await openImportModal(
+    return await openMigrateModal(
         this.app,
         dirPath,
         plugin,
         message,
-        width ?? undefined,
-        height ?? undefined
+        isImport
     );
 }
 
-async function openImportModal(
+async function openMigrateModal(
     app: App,
     dirPath: string,
     plugin: Tools,
     message: string,
-    width?: number,
-    height?: number
+    isImport: boolean,
 ): Promise<boolean> {
     return await new Promise((resolve) => {
-        new ImportModal(
+        new MigrateModal(
             app,
             dirPath,
             plugin,
@@ -38,41 +35,32 @@ async function openImportModal(
             (confirmed: boolean) => {
                 resolve(confirmed);
             },
-            width ?? undefined,
-            height ?? undefined
+            isImport
         ).open();
     });
 }
 
-class ImportModal extends Modal {
+class MigrateModal extends Modal {
     constructor(
         app: App,
         public dirPath: string,
         public plugin: Tools,
         public message: string,
         public callback: ConfirmCallback,
-        public width?: number,
-        public height?: number
+        public isImport: boolean
     ) {
         super(app);
+        this.getdir()
     }
 
     async onOpen() {
         const { contentEl } = this;
         contentEl.empty();
-        if (this.width) {
-            this.modalEl.style.width = `${this.width}px`;
-        }
-
-        if (this.height) {
-            this.modalEl.style.height = `${this.height}px`;
-        }
-
         contentEl.createEl("p").setText(this.message);
         contentEl.createEl("p").setText("❗existing are replaced. others are kept");
 
-        this.getItems(true)
-        this.getItems(false)
+        this.getItems(true)//→ settings.vaultDirs
+        this.getItems(false)//→ settings.vaultFiles
 
         this.createSettingsFromDirs();
         this.createSettingsFromFiles();
@@ -101,7 +89,7 @@ class ImportModal extends Modal {
             const dirPath = path.join(this.dirPath, dirName)
             if (fs.existsSync(dirPath)) {
                 new Setting(this.contentEl)
-                    .setName(`import ${dirName} ?`)
+                    .setName(this.isImport ? `import ${dirName} ?` : `export ${dirName} ?`)
                     .addToggle((toggle) => {
                         toggle.setValue(dirSettings[dirName])
                             .onChange(async (value) => {
@@ -117,10 +105,10 @@ class ImportModal extends Modal {
     createSettingsFromFiles() {
         const fileSettings = this.plugin.settings.vaultFiles;
         Object.keys(fileSettings).forEach(fileName => {
-            const filePath = path.join(this.dirPath, fileName) + ".json";;
+            const filePath = path.join(this.dirPath, fileName) + ".json"
             if (fs.existsSync(filePath)) {
                 new Setting(this.contentEl)
-                    .setName(`import ${fileName} ?`)
+                    .setName(this.isImport ? `import ${fileName} ?` : `export ${fileName} ?`)
                     .addToggle((toggle) => {
                         toggle.setValue(fileSettings[fileName])
                             .onChange(async (value) => {
@@ -130,6 +118,12 @@ class ImportModal extends Modal {
                     });
             }
         });
+    }
+
+    getdir(){
+        //@ts-ignore
+        const obsidian = this.app.vault.adapter.getFullPath(".obsidian")
+        this.dirPath = this.isImport ? this.dirPath : obsidian
     }
 
     getItems(isDirectory: boolean) {

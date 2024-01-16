@@ -1,3 +1,4 @@
+import * as path from "path";
 
 declare global {
     interface Window {

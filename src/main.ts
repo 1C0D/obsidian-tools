@@ -12,7 +12,8 @@ import { registerSFD } from "./search from directory/search-from-directory";
 import { registerOutOfVault } from "./move out from vault/move-out-menus";
 import { DEFAULT_SETTINGS } from "./types/variables";
 import { ToolsSettings } from "./types/global";
-import { importProfile } from "./importProfile";
+import { migrateProfile } from "./migratetProfile";
+
 
 export default class Tools extends Plugin {
 	settings: ToolsSettings;
@@ -36,12 +37,19 @@ export default class Tools extends Plugin {
 		}
 
 		this.addCommand({
-			id: "vault-profile",
-			name: "create vault profile",
+			id: "import-vault-profile",
+			name: "import vault profile",
 			callback: async () => {
-				importProfile(this)
+				migrateProfile(this)
 			},
 		});
+		this.addCommand({
+			id: "export-vault-profile",
+			name: "export vault profile",
+			callback: async () => {
+				migrateProfile(this, false)
+			}
+		})
 	}
 
 	async loadSettings() {
