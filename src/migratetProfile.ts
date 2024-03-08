@@ -6,8 +6,8 @@ import { Notice } from "obsidian";
 import Tools from "./main";
 import { setMigrateOptions } from "./migrateProfileModal";
 
-export async function migrateProfile(plugin: Tools, isImport = true) {
-    const sourceOrDest = await getThisVaultDir(".obsidian", isImport)
+export async function migrateProfile(plugin: Tools, isImport = true, path?: string) {
+    const sourceOrDest = path ? path : await getThisVaultDir(".obsidian", isImport)
     if (!sourceOrDest) return
     const msg = isImport ? "Import vault options" : "Export vault options"
     const res = await setMigrateOptions(plugin, sourceOrDest, msg, isImport) // → importModal

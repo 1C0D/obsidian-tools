@@ -13,6 +13,8 @@ import { registerOutOfVault } from "./move out from vault/move-out-menus";
 import { DEFAULT_SETTINGS } from "./types/variables";
 import { ToolsSettings } from "./types/global";
 import { migrateProfile } from "./migratetProfile";
+import { VaultsSuggest } from "./suggest";
+import { VaultChooser } from "./vaultsModal";
 
 
 export default class Tools extends Plugin {
@@ -40,14 +42,18 @@ export default class Tools extends Plugin {
 			id: "import-vault-profile",
 			name: "import vault profile",
 			callback: async () => {
-				migrateProfile(this)
+				new VaultChooser(this.app, true,(result) => {
+					migrateProfile(this,true,result)
+				}).open()
 			},
 		});
 		this.addCommand({
 			id: "export-vault-profile",
 			name: "export vault profile",
 			callback: async () => {
-				migrateProfile(this, false)
+				new VaultChooser(this.app, false,(result) => {
+					migrateProfile(this, false, result)
+				}).open()
 			}
 		})
 	}

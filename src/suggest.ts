@@ -1,6 +1,7 @@
-import { App, ISuggestOwner, Scope } from 'obsidian';
+import { App, ISuggestOwner, Scope, SuggestModal } from 'obsidian';
 import { createPopper, Instance as PopperInstance } from '@popperjs/core';
 import { TAbstractFile, TFolder } from 'obsidian';
+import { vaultPaths } from './utils';
 
 const wrapAround = (value: number, size: number): number => {
     return ((value % size) + size) % size;
@@ -227,5 +228,23 @@ export class FolderSuggest extends TextInputSuggest<TFolder> {
         this.inputEl.value = file.path;
         this.inputEl.trigger('input');
         this.close();
+    }
+}
+
+// Not used. I let it for example
+export class VaultsSuggest extends SuggestModal<string> {
+    getSuggestions(query: string): string[] {
+        const paths = vaultPaths??[]
+        return paths.filter((path) =>
+            path.toLowerCase().includes(query.toLowerCase()))
+    }
+
+    renderSuggestion(path: string, el: HTMLElement) {
+        el.createEl("div", { text: path });
+    }
+
+    onChooseSuggestion(path: string, evt: MouseEvent | KeyboardEvent) {
+        console.log("path", path)
+        return path
     }
 }
