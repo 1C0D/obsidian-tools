@@ -22,6 +22,6 @@ For repeat last command, it's there now https://github.com/1C0D/obsidian-repeat-
 ---
 - each part of the plugin can be disabled in settings.
 
-[^1] copying plugins won't copy node-modules folders, so cloned repo will be copied super fast. debugs are printed
+[^1]: copying plugins won't copy node-modules folders, so cloned repo will be copied super fast. debugs are printed
 [^2]: you can select several files holding alt  
 [^3]: the destination folder is opened at the end to check results...
