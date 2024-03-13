@@ -24,9 +24,9 @@ export class VaultChooser extends Modal {
                         this.close();
                         this.onSubmit("");
                     }));
-
-        vaultPaths.forEach((path) => {
-            this.createButtons(contentEl, path)
+                    
+        vaultPaths.forEach((_path) => {
+            this.createButtons(contentEl, _path)
         })
     }
 

@@ -244,7 +244,6 @@ export class VaultsSuggest extends SuggestModal<string> {
     }
 
     onChooseSuggestion(path: string, evt: MouseEvent | KeyboardEvent) {
-        console.log("path", path)
         return path
     }
 }

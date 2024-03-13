@@ -6,14 +6,14 @@ import { Notice } from "obsidian";
 import Tools from "./main";
 import { setMigrateOptions } from "./migrateProfileModal";
 
-export async function migrateProfile(plugin: Tools, isImport = true, path?: string) {
-    const sourceOrDest = path ? path : await getThisVaultDir(".obsidian", isImport)
+export async function migrateProfile(plugin: Tools, isImport = true, _path?: string) {
+    const sourceOrDest = _path ? _path+"/.obsidian" : await getVaultDir(".obsidian", isImport)
     if (!sourceOrDest) return
     const msg = isImport ? "Import vault options" : "Export vault options"
     const res = await setMigrateOptions(plugin, sourceOrDest, msg, isImport) // → importModal
     if (res) {
-        await importDirs(plugin, sourceOrDest, isImport)
-        await importJsons(plugin, sourceOrDest, isImport)
+        await importOrexportDirs(plugin, sourceOrDest, isImport)
+        await importOrexportJsons(plugin, sourceOrDest, isImport)
         if(!isImport) {
             new Notice("operations finished with success")            
         }
@@ -27,7 +27,7 @@ export async function migrateProfile(plugin: Tools, isImport = true, path?: stri
     }
 }
 
-async function getThisVaultDir(complement: string, isImport = true) {
+async function getVaultDir(complement: string, isImport = true) {
     const text = isImport ? "Select source vault folder" : "Select destination vault folder"
     const dir = await picker(text, ["openDirectory"])
     if (!dir) return
@@ -39,7 +39,7 @@ async function getThisVaultDir(complement: string, isImport = true) {
     return dirPath
 }
 
-async function importDirs(plugin: Tools, dirPath: string, isImport = true) {
+async function importOrexportDirs(plugin: Tools, dirPath: string, isImport = true) {
     const obsidian = this.app.vault.adapter.getFullPath(".obsidian")
     const vaultDirs = plugin.settings.vaultDirs;
 
@@ -53,7 +53,7 @@ async function importDirs(plugin: Tools, dirPath: string, isImport = true) {
         } else {
             try {
                 await fs.copy(srcDir, destination);
-                console.debug(`${key} imported`);
+                console.debug(`${key} ${isImport ? " imported" : " exported"}`);
             } catch (err) {
                 console.error(`Error copying ${key}: ${err}`);
             }
@@ -77,7 +77,7 @@ async function copyPlugins(src: string, dest: string) {
     }
 }
 
-async function importJsons(plugin: Tools, dirPath: string, isImport = true) {
+async function importOrexportJsons(plugin: Tools, dirPath: string, isImport = true) {
     const obsidian = this.app.vault.adapter.getFullPath(".obsidian")
     const vaultFiles = plugin.settings.vaultFiles;
 
@@ -96,7 +96,7 @@ async function importJsons(plugin: Tools, dirPath: string, isImport = true) {
         const mergedContent = { ...destinationContent, ...sourceContent };
 
         fs.writeFileSync(destinationPath, JSON.stringify(mergedContent, null, 2));
-        console.debug(`${key} imported`);
+        console.debug(`${key} ${isImport ? " imported" : " exported"}`)
 
     }
 }
